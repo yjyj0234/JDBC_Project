@@ -25,7 +25,7 @@ public class CarMain extends JFrame {
 		//메인프레임 종료
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//창 색상
-		cp.setBackground(new Color(245,245,245));		
+		cp.setBackground(Color.pink);		
 		initDesign();
 		
 		this.setVisible(true);	
@@ -34,7 +34,10 @@ public class CarMain extends JFrame {
 	public void initDesign()
 	{
 		ci.carImage();
-		ci.setBounds(20, 20, 240, 160);
+		ci.setBounds(20, 20, 240, 160);		
+		
+		ci.carImage1();
+		
 	
 		this.add(ci);
 		
