@@ -1,4 +1,4 @@
-package day0325;
+package Car;
 
 public class CarDto {
 

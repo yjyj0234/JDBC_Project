@@ -1,14 +1,11 @@
-package day0325;
+package Car;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Image;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 public class CarMain extends JFrame {
