@@ -130,23 +130,7 @@ public class CarInsert extends JFrame implements ActionListener {
 	
 	public void insertCar()
 	{
-		Connection conn=db.getConnection();
-		PreparedStatement pstmt=null;
 		
-		String sql="insert into car values(seq_car.nextval, ?,?,?,?)";
-		
-		try {
-			pstmt=conn.prepareStatement(sql);
-			
-			//바인딩
-			pstmt.setString(1, car_model);
-			pstmt.setString(2, option);
-			pstmt.setString(3, lblCarImage);
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 	}
 	

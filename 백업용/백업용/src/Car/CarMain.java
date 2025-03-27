@@ -45,7 +45,8 @@ public class CarMain extends JFrame {
 		ci.carImage();
 		ci.setBounds(50, 50, 780, 550);	
 		ci.setBorder(new LineBorder(Color.black,4));
-	
+		ci.carImage1();
+		
 		this.add(ci);
 		
 		//자동차 버튼 사이 선
