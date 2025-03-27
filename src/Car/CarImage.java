@@ -86,19 +86,16 @@ public class CarImage extends JPanel implements ActionListener {
 		// TODO Auto-generated method stub
 		Object ob=e.getSource();
 		
-		
+		String [] models = {"아반떼","그랜저","아이오닉6","캐스퍼","코나EV","싼타페"};
 			for(int i=0; i<data.length;i++)
 			{
 				if(ob==btnCarModels[i])
-				{
-					CarInsert cInsert=new CarInsert(modelName);
-					cInsert.setVisible(true);
+				{					
+					CarInsert cInsert=new CarInsert(models[i]);
+					cInsert.setVisible(true);					
 				}
-			}			
-			
-		}
-	
-		
+			}					
+		}		
 	}
 	
 	
