@@ -3,13 +3,15 @@ package Car;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -20,10 +22,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
-public class CarInsert extends JFrame implements ActionListener {
-	
+public class CarUpdate extends JFrame implements ActionListener {
 	Container cp;
 	JLabel lblModel,lblImage;
 	JRadioButton [] rbColors=new JRadioButton[2]; // 차량 색상 라디오버튼	
@@ -36,44 +40,34 @@ public class CarInsert extends JFrame implements ActionListener {
 	JTextField tfPrice,tfName, tfAddr,tfGender, tfHp, tfNati;	//주문자 정보 입력
 	ImageIcon icon;
 	String car_color;
-	
+	CarMain cMain=new CarMain("메인폼");
+	CarInsert cInsert=new CarInsert("입력 폼");
 	CarImage ci=new CarImage();	
 	DbConnect db=new DbConnect();
 	String modelName, option;
 	// 자동차 이미지 경로 (색상별)
-    String[][] carImages = {
-    		{"C:\\sist0217\\work\\JDBC_project\\test\\avante-white.png","C:\\sist0217\\work\\JDBC_project\\test\\avante-black.png"},
-    		{"C:\\sist0217\\work\\JDBC_project\\test\\grandeur-white.png","C:\\\\sist0217\\\\work\\\\JDBC_project\\\\test\\\\grandeur-black.png"},
-    		{"C:\\sist0217\\work\\JDBC_project\\test\\ioniq6-white.png","C:\\sist0217\\work\\JDBC_project\\test\\ioniq6-black.png"},
-    		{"C:\\sist0217\\work\\JDBC_project\\test\\casper-white.png","C:\\sist0217\\work\\JDBC_project\\test\\casper-black.png"},
-    		{"C:\\sist0217\\work\\JDBC_project\\test\\kona-white.png","C:\\sist0217\\work\\JDBC_project\\test\\kona-black.png"},
-    		{"C:\\sist0217\\work\\JDBC_project\\test\\santafe-white.png","C:\\sist0217\\work\\JDBC_project\\test\\santafe-black.png"}
-    };
-	
+    
+	int selectRow=-1;
 	
 	//생성자
-	public CarInsert(String model) {
-		super(model);
-		this.modelName=model;
+	public CarUpdate(String title) {
+		super(title);
+		
 		//위치,너비
-		this.setBounds(1000, 100, 800, 600);		
+		this.setBounds(1000, 100, 500, 600);		
 		cp=this.getContentPane();
 		//메인프레임 종료
-        //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//창 색상
-		cp.setBackground(new Color(245,245,245));		
+		cp.setBackground(new Color(245,245,245));
+		
 		initDesign();
-		setCarImage(0); // 기본 이미지는 흰색
-		
-		
-		//this.setVisible(true);	
+		this.setVisible(true);	
 	}
 	
-	//디자인
 	public void initDesign()
 	{
-		
-		this.setLayout(null);
+this.setLayout(null);
 		
 		//라벨 모델 라벨
 		lblModel=new JLabel("모델: "+modelName);
@@ -162,125 +156,55 @@ public class CarInsert extends JFrame implements ActionListener {
 		btnSave.setBounds(330, 350, 150, 80);
 		btnSave.addActionListener(this);
 		this.add(btnSave);
-		
-		
-	}
-	// 자동차 색상 변경 시 이미지 업데이트
-	public void setCarImage(int colorIndex)
-	{
-		int modelIndex= getModelIndex();
-		if(modelIndex !=-1)
-		{
-			icon= new ImageIcon(new ImageIcon(carImages[modelIndex][colorIndex])
-					.getImage().getScaledInstance(450, 300, Image.SCALE_SMOOTH));
-			lblImage.setIcon(icon);
-		}
 	}
 	
-	//모델 인덱스 찾기
-	private int getModelIndex() {
-		String [] models = {"아반떼","그랜저","아이오닉6","캐스퍼","코나EV","싼타페"};
-		for(int i=0; i<models.length;i++)
-		{
-			if(modelName.equals(models[i])) 
-			return i;
-		}
-		return -1;
-	}
 	
-	public void insertCarAndOrderer()
+	
+	public void insertWriteData()
 	{
 		Connection conn=db.getConnection();
-		PreparedStatement pstmtCar=null;
-		PreparedStatement pstmtOrderer=null;
+		PreparedStatement pstmt=null;
 		
+		ResultSet rs=null;
 		
-		
+		String sql="select c.car_no, car_model, car_color, car_option, car_price, order_name, order_addr, order_hp, order_nationality from car c, orderer o where c.car_no=o.car_no";
 		
 		try {
-			conn.setAutoCommit(false); //트랜잭션 시작
-			
-			String sqlCar="insert into car values(seq_car.nextval, ?, ?, ?, ?)";
-			//자동차 정보 저장
-			pstmtCar=conn.prepareStatement(sqlCar);			
-			//바인딩
-			pstmtCar.setString(1, modelName);
-			pstmtCar.setString(2, car_color);
-			pstmtCar.setString(3, option);
-			pstmtCar.setString(4, tfPrice.getText());			
-			pstmtCar.executeUpdate();
-			
-			String sqlOrderer="insert into orderer values(seq_order.nextval, ?, seq_car.currval , ?, ?, ?)";
-			//주문자 정보 저장
-			pstmtOrderer=conn.prepareStatement(sqlOrderer);			
-			//바인딩
-			pstmtOrderer.setString(1, tfName.getText());
-			pstmtOrderer.setString(2, tfAddr.getText());
-			pstmtOrderer.setString(3, tfHp.getText());
-			pstmtOrderer.setString(4, tfNati.getText());			
-			pstmtOrderer.executeUpdate();
-			
-			conn.commit(); //트랜잭션 커밋
-		} catch (SQLException e) {
-			
-			try {
-				if(conn !=null) conn.rollback(); //오류시 발생 시 롤백
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			pstmt=conn.prepareStatement(sql);
+			rs=pstmt.executeQuery();
+			while(rs.next())
+			{
+				modelName=rs.getString("car_model");
+				car_color=rs.getString("car_color");
+				option=rs.getString("car_option");
+				tfPrice.setText(rs.getString(String.valueOf("car_price")));
+				tfName.setText(rs.getString("order_name"));
+				tfAddr.setText(rs.getString("order_addr"));
+				tfHp.setText(rs.getString("order_hp"));
+				tfNati.setText(rs.getString("order_nationality"));
 			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		finally {
-			db.dbClose(pstmtCar, conn);
-			db.dbClose(pstmtOrderer, conn);
-		}
+		}finally {
+			db.dbClose(rs, pstmt, conn);
+		}		
 		
 		
-	}	
-
+	}
+	
+	public void addData() {
+		
+		}
+	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		//new CarInsert("추가폼");
-		
+		//new CarUpdate("업데이트 폼");
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		Object ob=e.getSource();
-		
-		for(int i=0; i<rbColors.length;i++)
-		{
-			if(rbColors[i].isSelected())
-			{
-				setCarImage(i); //선택된 색상에 맞는 이미지 변경
-				car_color=carColor[i];
-			}
-		}
-		
-		option=null;
-		ArrayList<String> selectedOptions=new ArrayList<String>();
-		for(int i=0; i<cbOption.length; i++)
-		{				
-			if(cbOption[i].isSelected())
-				
-				
-				
-				
-			{
-			selectedOptions.add(cbOption[i].getText()); //옵션값 가져오기
-			}			
-		}
-		option= String.join(", ", selectedOptions); //선택된 옵션을 문자열로 변환
-		
-		
-		if(ob==btnSave)
-		{
-			insertCarAndOrderer();
-			this.setVisible(false);
-		}
 		
 	}
 }
-
